@@ -2,10 +2,11 @@ const express = require("express");
 const helmet = require("helmet");
 const config = require("./config");
 const loaders = require("./loaders");
-const { ProjectRoutes } = require("./routes");
+const events = require("./scripts/events");
 
 config();
 loaders();
+events();
 
 const app = express();
 app.use(express.json());

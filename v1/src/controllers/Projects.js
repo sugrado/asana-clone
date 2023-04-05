@@ -1,4 +1,4 @@
-const { insert, list, modify } = require("../services/Projects");
+const { insert, list, modify, remove } = require("../services/Projects");
 const httpStatus = require("http-status");
 
 const index = (req, res) => {
@@ -39,8 +39,30 @@ const update = (req, res) => {
     });
 };
 
+const deleteProject = (req, res) => {
+  if (!req.params?.id)
+    return res
+      .status(httpStatus.NOT_FOUND)
+      .send({ message: "ID field is required" });
+
+  remove(req.params.id)
+    .then((deletedProject) => {
+      if (!deletedProject)
+        return res
+          .status(httpStatus.NOT_FOUND)
+          .send({ message: "Project not found " });
+      res.status(httpStatus.OK).send(deletedProject);
+    })
+    .catch((e) => {
+      res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send({ error: "Internal Server Error" });
+    });
+};
+
 module.exports = {
   create,
   index,
   update,
+  deleteProject,
 };

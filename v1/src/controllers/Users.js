@@ -3,7 +3,13 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../scripts/utils/helper");
-const { insert, list, loginUser, modify } = require("../services/Users");
+const {
+  insert,
+  list,
+  loginUser,
+  modify,
+  remove,
+} = require("../services/Users");
 const httpStatus = require("http-status");
 const projectService = require("../services/Projects");
 const uuid = require("uuid");
@@ -112,6 +118,26 @@ const update = (req, res) => {
     });
 };
 
+const deleteUser = (req, res) => {
+  if (!req.params?.id)
+    return res
+      .status(httpStatus.NOT_FOUND)
+      .send({ message: "ID field is required" });
+
+  remove(req.params.id)
+    .then((deletedUser) => {
+      if (!deletedUser)
+        return res
+          .status(httpStatus.NOT_FOUND)
+          .send({ message: "User not found " });
+      res.status(httpStatus.OK).send(deletedUser);
+    })
+    .catch((e) => {
+      res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send({ error: "Internal Server Error" });
+    });
+};
 module.exports = {
   create,
   index,
@@ -119,4 +145,5 @@ module.exports = {
   projectList,
   resetPassword,
   update,
+  deleteUser,
 };

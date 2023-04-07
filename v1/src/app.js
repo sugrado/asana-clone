@@ -3,7 +3,7 @@ const fileUpload = require("express-fileupload");
 const helmet = require("helmet");
 const config = require("./config");
 const loaders = require("./loaders");
-const { ProjectRoutes, UserRoutes } = require("./routes");
+const { ProjectRoutes, UserRoutes, SectionRoutes } = require("./routes");
 const events = require("./scripts/events");
 const path = require("path");
 
@@ -21,4 +21,5 @@ app.listen(process.env.APP_PORT, () => {
   console.log("SERVER RUNNING ON :" + process.env.APP_PORT);
   app.use("/projects", ProjectRoutes);
   app.use("/users", UserRoutes);
+  app.use("/sections", SectionRoutes);
 });

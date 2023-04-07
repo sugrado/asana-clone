@@ -138,6 +138,19 @@ const deleteUser = (req, res) => {
         .send({ error: "Internal Server Error" });
     });
 };
+
+const changePassword = (req, res) => {
+  req.body.password = passwordToHash(req.body.password);
+  modify({ _id: req.user?._id }, req.body)
+    .then((updatedUser) => {
+      res.status(httpStatus.OK).send(updatedUser);
+    })
+    .catch((e) => {
+      res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .send({ error: "Internal Server Error" });
+    });
+};
 module.exports = {
   create,
   index,
@@ -146,4 +159,5 @@ module.exports = {
   resetPassword,
   update,
   deleteUser,
+  changePassword,
 };

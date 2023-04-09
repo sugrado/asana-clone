@@ -1,5 +1,5 @@
-const { insert, list, modify, remove } = require("../services/Sections");
 const httpStatus = require("http-status");
+const sectionService = require("../services/SectionService");
 
 const index = (req, res) => {
   if (!req?.params?.projectId)
@@ -7,7 +7,8 @@ const index = (req, res) => {
       .status(httpStatus.BAD_REQUEST)
       .send({ error: "Project ID is required" });
 
-  list({ project_id: req.params.projectId })
+  sectionService
+    .list({ project_id: req.params.projectId })
     .then((response) => {
       res.status(httpStatus.OK).send(response);
     })
@@ -18,7 +19,8 @@ const index = (req, res) => {
 
 const create = (req, res) => {
   req.body.user_id = req.user;
-  insert(req.body)
+  sectionService
+    .create(req.body)
     .then((response) => {
       res.status(httpStatus.CREATED).send(response);
     })
@@ -33,7 +35,8 @@ const update = (req, res) => {
       .status(httpStatus.NOT_FOUND)
       .send({ message: "ID field is required" });
 
-  modify(req.body, req.params.id)
+  sectionService
+    .update(req.body, req.params.id)
     .then((updatedDoc) => {
       res.status(httpStatus.OK).send(updatedDoc);
     })
@@ -50,7 +53,8 @@ const deleteSection = (req, res) => {
       .status(httpStatus.NOT_FOUND)
       .send({ message: "ID field is required" });
 
-  remove(req.params.id)
+  sectionService
+    .delete(req.params.id)
     .then((deletedDoc) => {
       if (!deletedDoc)
         return res

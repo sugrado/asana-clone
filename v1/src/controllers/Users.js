@@ -3,22 +3,17 @@ const {
   generateAccessToken,
   generateRefreshToken,
 } = require("../scripts/utils/helper");
-const {
-  insert,
-  list,
-  loginUser,
-  modify,
-  remove,
-} = require("../services/Users");
 const httpStatus = require("http-status");
-const projectService = require("../services/Projects");
+const projectService = require("../services/ProjectService");
 const uuid = require("uuid");
 const eventEmitter = require("../scripts/events/eventEmitter");
 const path = require("path");
+const userService = require("../services/UserService");
 
 const create = (req, res) => {
   req.body.password = passwordToHash(req.body.password);
-  insert(req.body)
+  userService
+    .create(req.body)
     .then((response) => {
       res.status(httpStatus.CREATED).send(response);
     })
@@ -29,7 +24,8 @@ const create = (req, res) => {
 
 const login = (req, res) => {
   req.body.password = passwordToHash(req.body.password);
-  loginUser(req.body)
+  userService
+    .loginUser(req.body)
     .then((user) => {
       if (!user)
         return res
@@ -57,7 +53,8 @@ const login = (req, res) => {
 };
 
 const index = (req, res) => {
-  list()
+  userService
+    .list()
     .then((response) => {
       res.status(httpStatus.OK).send(response);
     })
@@ -82,7 +79,11 @@ const projectList = (req, res) => {
 
 const resetPassword = (req, res) => {
   const newPassword = uuid.v4()?.split("-")[0] || `usr-${new Date().getTime()}`;
-  modify({ email: req.body.email }, { password: passwordToHash(newPassword) })
+  userService
+    .updateWhere(
+      { password: passwordToHash(newPassword) },
+      { email: req.body.email }
+    )
     .then((updatedUser) => {
       if (!updatedUser)
         return res
@@ -108,7 +109,8 @@ const resetPassword = (req, res) => {
 };
 
 const update = (req, res) => {
-  modify({ _id: req.user?._id }, req.body)
+  userService
+    .update(req.body, req.user?._id)
     .then((updatedUser) => {
       res.status(httpStatus.OK).send(updatedUser);
     })
@@ -125,7 +127,8 @@ const deleteUser = (req, res) => {
       .status(httpStatus.NOT_FOUND)
       .send({ message: "ID field is required" });
 
-  remove(req.params.id)
+  userService
+    .delete(req.params.id)
     .then((deletedUser) => {
       if (!deletedUser)
         return res
@@ -142,7 +145,8 @@ const deleteUser = (req, res) => {
 
 const changePassword = (req, res) => {
   req.body.password = passwordToHash(req.body.password);
-  modify({ _id: req.user?._id }, req.body)
+  userService
+    .update(req.body, req.user?._id)
     .then((updatedUser) => {
       res.status(httpStatus.OK).send(updatedUser);
     })
@@ -165,7 +169,8 @@ const updateProfileImage = (req, res) => {
       return res
         .status(httpStatus.INTERNAL_SERVER_ERROR)
         .send({ error: "Internal Server Error" });
-    modify({ _id: req.user?._id }, { profile_image: fileName })
+    userService
+      .update({ profile_image: fileName }, req.user?._id)
       .then((updatedUser) => {
         res.status(httpStatus.OK).send(updatedUser);
       })

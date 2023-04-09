@@ -1,4 +1,4 @@
-const { insert, list, modify, remove, findOne } = require("../services/Tasks");
+const taskService = require("../services/TaskService");
 const httpStatus = require("http-status");
 
 const index = (req, res) => {
@@ -7,7 +7,8 @@ const index = (req, res) => {
       error: "Project id is required.",
     });
 
-  list({ projectId: req.params.projectId })
+  taskService
+    .list({ projectId: req.params.projectId })
     .then((response) => {
       res.status(httpStatus.OK).send(response);
     })
@@ -16,7 +17,8 @@ const index = (req, res) => {
 
 const create = (req, res) => {
   req.body.user_id = req.user;
-  insert(req.body)
+  taskService
+    .create(req.body)
     .then((response) => {
       res.status(httpStatus.CREATED).send(response);
     })
@@ -31,7 +33,8 @@ const update = (req, res) => {
       message: "Id is required",
     });
   }
-  modify(req.body, req.params?.id)
+  taskService
+    .update(req.body, req.params?.id)
     .then((updatedDoc) => {
       res.status(httpStatus.OK).send(updatedDoc);
     })
@@ -48,7 +51,8 @@ const deleteTask = (req, res) => {
       message: "Id is required",
     });
   }
-  remove(req.params?.id)
+  taskService
+    .delete(req.params?.id)
     .then((deletedDoc) => {
       if (!deletedDoc) {
         res.status(httpStatus.NOT_FOUND).send({
@@ -68,7 +72,7 @@ const deleteTask = (req, res) => {
 
 const makeComment = async (req, res) => {
   try {
-    findOne({ _id: req.params.id }).then((mainTask) => {
+    taskService.read({ _id: req.params.id }).then((mainTask) => {
       if (!mainTask)
         return res.status(httpStatus.NOT_FOUND).send({
           message: "Task not found",
@@ -93,7 +97,7 @@ const makeComment = async (req, res) => {
 
 const deleteComment = async (req, res) => {
   try {
-    findOne({ _id: req.params.id }).then((mainTask) => {
+    taskService.read({ _id: req.params.id }).then((mainTask) => {
       if (!mainTask)
         return res.status(httpStatus.NOT_FOUND).send({
           message: "Task not found",
@@ -119,13 +123,13 @@ const addSubTask = async (req, res) => {
       message: "Id is required",
     });
   try {
-    findOne({ _id: req.params.id }).then((mainTask) => {
+    taskService.read({ _id: req.params.id }).then((mainTask) => {
       if (!mainTask)
         return res.status(httpStatus.NOT_FOUND).send({
           message: "Task not found",
         });
 
-      insert({ ...req.body, user_id: req.user }).then((subTask) => {
+      taskService.create({ ...req.body, user_id: req.user }).then((subTask) => {
         mainTask.sub_tasks.push(subTask);
         mainTask.save().then((updatedDoc) => {
           return res.status(httpStatus.OK).send(updatedDoc);
@@ -145,7 +149,7 @@ const fetchTask = async (req, res) => {
       message: "Id is required",
     });
   try {
-    findOne({ _id: req.params.id },true).then((task) => {
+    taskService.read({ _id: req.params.id }, true).then((task) => {
       if (!task)
         return res.status(httpStatus.NOT_FOUND).send({
           message: "Task not found",

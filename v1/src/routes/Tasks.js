@@ -39,5 +39,6 @@ router
     TasksController.addSubTask
   );
 router.route("/:id").get(authenticateToken, TasksController.fetchTask);
+router.route("/").get(authenticateToken, TasksController.index);
 
 module.exports = router;

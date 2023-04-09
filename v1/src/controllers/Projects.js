@@ -1,8 +1,9 @@
-const { insert, list, modify, remove } = require("../services/Projects");
 const httpStatus = require("http-status");
+const projectService = require("../services/ProjectService");
 
 const index = (req, res) => {
-  list()
+  projectService
+    .list()
     .then((response) => {
       res.status(httpStatus.OK).send(response);
     })
@@ -13,7 +14,8 @@ const index = (req, res) => {
 
 const create = (req, res) => {
   req.body.user_id = req.user;
-  insert(req.body)
+  projectService
+    .create(req.body)
     .then((response) => {
       res.status(httpStatus.CREATED).send(response);
     })
@@ -28,7 +30,8 @@ const update = (req, res) => {
       .status(httpStatus.NOT_FOUND)
       .send({ message: "ID field is required" });
 
-  modify(req.body, req.params.id)
+  projectService
+    .update(req.body, req.params.id)
     .then((updatedProject) => {
       res.status(httpStatus.OK).send(updatedProject);
     })
@@ -45,7 +48,8 @@ const deleteProject = (req, res) => {
       .status(httpStatus.NOT_FOUND)
       .send({ message: "ID field is required" });
 
-  remove(req.params.id)
+  projectService
+    .delete(req.params.id)
     .then((deletedProject) => {
       if (!deletedProject)
         return res

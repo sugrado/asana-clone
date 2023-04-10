@@ -1,5 +1,6 @@
 const httpStatus = require("http-status");
 const projectService = require("../services/ProjectService");
+const ApiError = require("../errors/ApiError");
 
 class ProjectsController {
   index(req, res) {
@@ -25,7 +26,7 @@ class ProjectsController {
       });
   }
 
-  update(req, res) {
+  update(req, res, next) {
     if (!req.params?.id)
       return res
         .status(httpStatus.NOT_FOUND)
@@ -34,6 +35,9 @@ class ProjectsController {
     projectService
       .update(req.body, req.params.id)
       .then((updatedProject) => {
+        if (!updatedProject)
+          /*throw new ApiError("Project not found", 404);*/
+          return next(new ApiError("Project not found", 404));
         res.status(httpStatus.OK).send(updatedProject);
       })
       .catch((e) => {

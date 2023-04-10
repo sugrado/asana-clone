@@ -4,8 +4,11 @@ const express = require("express");
 const SectionsController = require("../controllers/Sections");
 const authenticateToken = require("../middlewares/authenticate");
 const router = express.Router();
+const idChecker = require("../middlewares/idChecker");
 
-router.route("/:projectId").get(authenticateToken, SectionsController.index);
+router
+  .route("/:projectId")
+  .get(idChecker("projectId"), authenticateToken, SectionsController.index);
 router
   .route("/")
   .post(
@@ -16,12 +19,13 @@ router
 router
   .route("/:id")
   .patch(
+    idChecker(),
     authenticateToken,
     validate(schemas.updateValidation),
     SectionsController.update
   );
 router
   .route("/:id")
-  .delete(authenticateToken, SectionsController.deleteSection);
+  .delete(idChecker(), authenticateToken, SectionsController.deleteSection);
 
 module.exports = router;

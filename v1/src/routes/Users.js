@@ -4,6 +4,7 @@ const express = require("express");
 const UsersController = require("../controllers/Users");
 const authenticateToken = require("../middlewares/authenticate");
 const router = express.Router();
+const idChecker = require("../middlewares/idChecker");
 
 router.get("/", UsersController.index);
 router
@@ -36,6 +37,8 @@ router
 router
   .route("/update-profile-image")
   .post(authenticateToken, UsersController.updateProfileImage);
-router.route("/:id").delete(authenticateToken, UsersController.deleteUser);
+router
+  .route("/:id")
+  .delete(idChecker(), authenticateToken, UsersController.deleteUser);
 
 module.exports = router;

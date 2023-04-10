@@ -2,6 +2,7 @@ const schemas = require("../validations/Projects");
 const validate = require("../middlewares/validate");
 const express = require("express");
 const authenticateToken = require("../middlewares/authenticate");
+const idChecker = require("../middlewares/idChecker");
 const router = express.Router();
 const projectsController = require("../controllers/Projects");
 
@@ -16,12 +17,13 @@ router
 router
   .route("/:id")
   .patch(
+    idChecker(),
     authenticateToken,
     validate(schemas.updateValidation),
     projectsController.update
   );
 router
   .route("/:id")
-  .delete(authenticateToken, projectsController.deleteProject);
+  .delete(idChecker(), authenticateToken, projectsController.deleteProject);
 
 module.exports = router;
